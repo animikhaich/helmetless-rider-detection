@@ -280,8 +280,6 @@ for a, b in reversed(list(enumerate(out_classes))):
     if score < min_probability:
         continue
 
-    print(predicted_class)
-
     label = "{} {:.2f}".format(predicted_class, score)
 
     top, left, bottom, right = box
