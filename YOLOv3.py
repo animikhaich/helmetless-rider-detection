@@ -86,29 +86,6 @@ def residual_block(input, channels, num_blocks):
 
         network = Add()([network, network_1])
     return network
-# Parameters declared for COCO dataset
-__yolo_anchors = np.array(
-            [[10., 13.], [16., 30.], [33., 23.], [30., 61.], [62., 45.], [59., 119.], [116., 90.], [156., 198.],
-             [373., 326.]])
-numbers_to_names = {0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train',
-                   7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign', 12: 'parking meter',
-                   13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow', 20: 'elephant',
-                   21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 25: 'umbrella', 26: 'handbag', 27: 'tie',
-                   28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite',
-                   34: 'baseball bat', 35: 'baseball glove', 36: 'skateboard', 37: 'surfboard', 38: 'tennis racket',
-                   39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl',
-                   46: 'banana', 47: 'apple', 48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot', 52: 'hot dog',
-                   53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant', 59: 'bed',
-                   60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote', 66: 'keyboard',
-                   67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink', 72: 'refrigerator',
-                   73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier',
-                   79: 'toothbrush'}
-
-__yolo_iou = 0.45
-__yolo_score = 0.1
-minimum_percentage_probability = 30
-display_object_name = True
-display_percentage_probability = True
 
 def yolo_head(feats, anchors, num_classes, input_shape, calc_loss=False):
 
@@ -230,74 +207,132 @@ def draw_caption(image, box, caption):
     cv2.putText(image, caption, (b[0], b[1] - 10), cv2.FONT_HERSHEY_PLAIN, 1, (255, 255, 255), 2)
 
 
+class YOLO:
+    def __init__(self, yolo_weights_h5_file):
+        self.yolo_weights_h5_file = yolo_weights_h5_file
 
-model = yolo_main(Input(shape=(None, None, 3)), len(__yolo_anchors) // 3, len(numbers_to_names))
-model.load_weights("C:/Users/animi/Desktop/Object Detection Using ImageAI/yolo.h5")
+        # Parameters declared for COCO dataset
+        self.__yolo_anchors = np.array(
+            [[10., 13.], [16., 30.], [33., 23.], [30., 61.], [62., 45.], [59., 119.], [116., 90.], [156., 198.],
+             [373., 326.]])
+        self.numbers_to_names = {0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train',
+                            7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign',
+                            12: 'parking meter',
+                            13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow',
+                            20: 'elephant',
+                            21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 25: 'umbrella', 26: 'handbag',
+                            27: 'tie',
+                            28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite',
+                            34: 'baseball bat', 35: 'baseball glove', 36: 'skateboard', 37: 'surfboard',
+                            38: 'tennis racket',
+                            39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl',
+                            46: 'banana', 47: 'apple', 48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot',
+                            52: 'hot dog',
+                            53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant',
+                            59: 'bed',
+                            60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote',
+                            66: 'keyboard',
+                            67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink',
+                            72: 'refrigerator',
+                            73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier',
+                            79: 'toothbrush'}
+
+        self.__yolo_iou = 0.45
+        self.__yolo_score = 0.1
+        self.minimum_percentage_probability = 30
+        self.display_object_name = True
+        self.display_percentage_probability = True
+
+        self.__yolo_input_image_shape = self.new_image_size = None
+        self.__yolo_boxes = self.__yolo_boxes = self.__yolo_classes = self.__yolo_model_image_size = None
+        self.model = None
+
+    def init_model(self):
+        self.model = yolo_main(Input(shape=(None, None, 3)), len(self.__yolo_anchors) // 3, len(self.numbers_to_names))
+        self.model.load_weights("C:/Users/animi/Desktop/Object Detection Using ImageAI/yolo.h5")
+
+        self.__yolo_input_image_shape = K.placeholder(shape=(2,))
+        self.__yolo_boxes, self.__yolo_scores, self.__yolo_classes = yolo_eval(self.model.output,
+                                                               self.__yolo_anchors,
+                                                               len(self.numbers_to_names),
+                                                               self.__yolo_input_image_shape,
+                                                               score_threshold=self.__yolo_score,
+                                                               iou_threshold=self.__yolo_iou)
+
+        self.__yolo_model_image_size = (416, 416)
+        self.new_image_size = (self.__yolo_model_image_size[0] - (self.__yolo_model_image_size[0] % 32),
+                               self.__yolo_model_image_size[1] - (self.__yolo_model_image_size[1] % 32))
+
+    def evaluate_frame(self, frame):
+        detected_copy = frame.copy()
+        detected_copy = cv2.cvtColor(detected_copy, cv2.COLOR_BGR2RGB)
+
+        frame = Image.fromarray(np.uint8(frame))
+        boxed_image = letterbox_image(frame, self.new_image_size)
+        image_data = np.array(boxed_image, dtype="float32")
+
+        image_data /= 255.
+        image_data = np.expand_dims(image_data, 0)
+
+        sess = K.get_session()
+        out_boxes, out_scores, out_classes = sess.run([self.__yolo_boxes, self.__yolo_scores, self.__yolo_classes],
+                                            feed_dict={
+                                                self.model.input: image_data,
+                                                self.__yolo_input_image_shape: [frame.size[1], frame.size[0]],
+                                                K.learning_phase(): 0
+                                            })
+
+        min_probability = self.minimum_percentage_probability / 100
+        output_list = list()
+        for a, b in reversed(list(enumerate(out_classes))):
+            info_dict = dict()
+            predicted_class = self.numbers_to_names[b]
+            box = out_boxes[a]
+            score = out_scores[a]
+
+            if predicted_class not in ['person', 'motorcycle']:
+                continue
+
+            if score < min_probability:
+                continue
+
+            label = "{} {:.2f}".format(predicted_class, score)
+
+            top, left, bottom, right = box
+            top = max(0, np.floor(top + 0.5).astype('int32'))
+            left = max(0, np.floor(left + 0.5).astype('int32'))
+            bottom = min(frame.size[1], np.floor(bottom + 0.5).astype('int32'))
+            right = min(frame.size[0], np.floor(right + 0.5).astype('int32'))
+
+            try:
+                color = label_color(b)
+            except:
+                color = (255, 0, 0)
+
+            detection_details = (left, top, right, bottom)
+            info_dict['name'] = predicted_class
+            info_dict['box_points'] = detection_details
+
+            output_list.append(info_dict)
+
+        return output_list
 
 
-__yolo_input_image_shape = K.placeholder(shape=(2,))
-__yolo_boxes, __yolo_scores, __yolo_classes = yolo_eval(model.output,
-                                                       __yolo_anchors,
-                                                       len(numbers_to_names),
-                                                       __yolo_input_image_shape,
-                                                       score_threshold=__yolo_score,
-                                                       iou_threshold=__yolo_iou)
+if __name__ == '__main__':
+    import os, time
 
-__yolo_model_image_size = (416, 416)
-new_image_size = (__yolo_model_image_size[0] - (__yolo_model_image_size[0] % 32),
-                  __yolo_model_image_size[1] - (__yolo_model_image_size[1] % 32))
+    start_time = time.time()
+    test_obj = YOLO("C:/Users/animi/Desktop/Object Detection Using ImageAI/yolo.h5")
+    print("Checkpoint 1...", time.time()-start_time)
 
-frame = cv2.imread("image.jpg")
-detected_copy = frame.copy()
-detected_copy = cv2.cvtColor(detected_copy, cv2.COLOR_BGR2RGB)
+    start_time = time.time()
+    test_obj.init_model()
+    print("Checkpoint 2...", time.time() - start_time)
 
-frame = Image.fromarray(np.uint8(frame))
-boxed_image = letterbox_image(frame, new_image_size)
-image_data = np.array(boxed_image, dtype="float32")
+    images = [file for file in os.listdir() if '.jpg' in file]
 
-image_data /= 255.
-image_data = np.expand_dims(image_data, 0)
-
-sess = K.get_session()
-out_boxes, out_scores, out_classes = sess.run([__yolo_boxes, __yolo_scores, __yolo_classes],
-                                    feed_dict={
-                                        model.input: image_data,
-                                        __yolo_input_image_shape: [frame.size[1], frame.size[0]],
-                                        K.learning_phase(): 0
-                                    })
-
-min_probability = minimum_percentage_probability / 100
-output_list = list()
-for a, b in reversed(list(enumerate(out_classes))):
-    info_dict = dict()
-    predicted_class = numbers_to_names[b]
-    box = out_boxes[a]
-    score = out_scores[a]
-
-    if predicted_class not in ['person', 'motorcycle']:
-        continue
-
-    if score < min_probability:
-        continue
-
-    label = "{} {:.2f}".format(predicted_class, score)
-
-    top, left, bottom, right = box
-    top = max(0, np.floor(top + 0.5).astype('int32'))
-    left = max(0, np.floor(left + 0.5).astype('int32'))
-    bottom = min(frame.size[1], np.floor(bottom + 0.5).astype('int32'))
-    right = min(frame.size[0], np.floor(right + 0.5).astype('int32'))
-
-    try:
-        color = label_color(b)
-    except:
-        color = (255, 0, 0)
-
-    detection_details = (left, top, right, bottom)
-    info_dict['name'] = predicted_class
-    info_dict['box_points'] = detection_details
-
-    output_list.append(info_dict)
-
-print(output_list)
-
+    for image in images:
+        start_time = time.time()
+        frame = cv2.imread(image)
+        print(test_obj.evaluate_frame(frame))
+        print("Loop Checkpoint...", time.time() - start_time)
