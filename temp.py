@@ -27,6 +27,7 @@ image_folder = "D:/Divided dataset/Animikh/"
 yolo_weights_file = "C:/Users/animi/Desktop/Object Detection Using ImageAI/yolo.h5"
 destination_folder = "D:/Divided dataset/Animikh_Heads/"
 destination_folder_detected = "D:/Divided dataset/Animikh_Detected/"
+head_counter = 0
 
 test_obj = YOLO(yolo_weights_file)
 
@@ -35,14 +36,17 @@ test_obj.init_model()
 print("Checkpoint 1...", time.time() - start_time)
 
 images = sorted([file for file in os.listdir(image_folder) if '.jpg' in file])
+num_images = len(images)
 
 for iteration, image in enumerate(images):
+    print("### Iteration {} of {} || Total Heads: {}".format(iteration+1, num_images, head_counter))
+    logger.info("### Iteration {} of {} || Total Heads: {}".format(iteration+1, num_images, head_counter))
     start_time = time.time()
     frame_original = cv2.imread(image_folder+image)
     frame = frame_original.copy()
     detections = test_obj.evaluate_frame(frame)
-    print("START Checkpoint for Iteration: {}, Image {} Time taken for detection: {}".format(iteration+1, image, time.time()-start_time))
-    logger.info("START Checkpoint for Iteration: {}, Image {} Time taken for detection: {}".format(iteration+1, image, time.time()-start_time))
+    print("START Checkpoint for Iteration: {} || Image {} || Time taken for detection: {}".format(iteration+1, image, time.time()-start_time))
+    logger.info("START Checkpoint for Iteration: {} || Image {} || Time taken for detection: {}".format(iteration+1, image, time.time()-start_time))
 
     head_detected = frame_original.copy()
     detected_copy = frame_original.copy()
@@ -72,13 +76,13 @@ for iteration, image in enumerate(images):
                         person_right_bottom = (secondObject['box_points'][2], secondObject['box_points'][3] - 3 * person_height //4)
 
                         if area > 0 and area > 8000:
-                            list_of_rects.append((bigbox_left, bigbox_top, bigbox_right, bigbox_bottom))
-                            cv2.rectangle(detected_copy, (bigbox_left, bigbox_top), (bigbox_right, bigbox_bottom), (0, 255, 0),  2)
+                            # list_of_rects.append((bigbox_left, bigbox_top, bigbox_right, bigbox_bottom))
+                            # cv2.rectangle(detected_copy, (bigbox_left, bigbox_top), (bigbox_right, bigbox_bottom), (0, 255, 0),  2)
 
                             list_of_heads.append((person_left_top[0], person_left_top[1], person_right_bottom[0], person_right_bottom[1]))
                             # cv2.rectangle(head_detected, person_left_top, person_right_bottom, (0, 255, 0),  2)
 
-        cv2.imwrite(destination_folder_detected + image.split('.')[0] + str(iteration) + '.jpg', detected_copy)
+        # cv2.imwrite(destination_folder_detected + image.split('.')[0] + str(iteration) + '.jpg', detected_copy)
         im = frame_original.copy()
         j = 1
         num_heads = len(list_of_heads)
@@ -86,6 +90,7 @@ for iteration, image in enumerate(images):
             cropped_img = im[i[1]:i[3], i[0]:i[2]]
             print("###### Writing {} of {} Heads to Destination folder".format(num+1, num_heads))
             cv2.imwrite(destination_folder + image.split('.')[0] + str(j) + '.jpg', cropped_img)
+            head_counter += 1
             j += 1
 
         print("END Checkpoint for Iteration: {} || Image {} || Detections: {} || Time taken for Cropping: {}".format(iteration + 1, image,
