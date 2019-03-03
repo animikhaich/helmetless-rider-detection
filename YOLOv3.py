@@ -14,6 +14,7 @@ from keras.layers.normalization import BatchNormalization
 from keras.regularizers import l2
 from keras.models import Model, Input
 
+
 def letterbox_image(image, size):
     iw, ih = image.size
     w, h = size
@@ -26,6 +27,7 @@ def letterbox_image(image, size):
     new_image.paste(image, ((w-nw)//2, (h-nh)//2))
     return new_image
 
+
 def darknet(input):
     network = NetworkConv2D_BN_Leaky(input=input, channels=32, kernel_size=(3,3))
     network = residual_block(input=network, channels=64, num_blocks=1)
@@ -35,6 +37,7 @@ def darknet(input):
     network = residual_block(input=network, channels=1024, num_blocks=4)
 
     return network
+
 
 def last_layers(input, channels_in, channels_out, layer_name=""):
 
@@ -47,7 +50,8 @@ def last_layers(input, channels_in, channels_out, layer_name=""):
     network_1 = NetworkConv2D_BN_Leaky(input=network, channels=(channels_in * 2), kernel_size=(3, 3))
     network_1 = Conv2D(filters=channels_out, kernel_size=(1,1), name=layer_name)(network_1)
 
-    return  network, network_1
+    return network, network_1
+
 
 def yolo_main(input, num_anchors, num_classes):
 
@@ -69,12 +73,16 @@ def yolo_main(input, num_anchors, num_classes):
 
     return Model(input, [network_1, network_2, network_3])
 
-def NetworkConv2D_BN_Leaky(input, channels, kernel_size, kernel_regularizer = l2(5e-4), strides=(1,1), padding="same", use_bias=False):
 
-    network = Conv2D( filters=channels, kernel_size=kernel_size, strides=strides, padding=padding, kernel_regularizer=kernel_regularizer, use_bias=use_bias)(input)
+def NetworkConv2D_BN_Leaky(input, channels, kernel_size, kernel_regularizer = l2(5e-4),
+                           strides=(1,1), padding="same", use_bias=False):
+
+    network = Conv2D( filters=channels, kernel_size=kernel_size, strides=strides, padding=padding,
+                      kernel_regularizer=kernel_regularizer, use_bias=use_bias)(input)
     network = BatchNormalization()(network)
     network = LeakyReLU(alpha=0.1)(network)
     return network
+
 
 def residual_block(input, channels, num_blocks):
     network = ZeroPadding2D(((1,0), (1,0)))(input)
@@ -86,6 +94,7 @@ def residual_block(input, channels, num_blocks):
 
         network = Add()([network, network_1])
     return network
+
 
 def yolo_head(feats, anchors, num_classes, input_shape, calc_loss=False):
 
@@ -113,6 +122,7 @@ def yolo_head(feats, anchors, num_classes, input_shape, calc_loss=False):
     if calc_loss == True:
         return grid, feats, box_xy, box_wh
     return box_xy, box_wh, box_confidence, box_class_probs
+
 
 def yolo_correct_boxes(box_xy, box_wh, input_shape, image_shape):
 
@@ -149,6 +159,7 @@ def yolo_boxes_and_scores(feats, anchors, num_classes, input_shape, image_shape)
     box_scores = box_confidence * box_class_probs
     box_scores = K.reshape(box_scores, [-1, num_classes])
     return boxes, box_scores
+
 
 def yolo_eval(yolo_outputs,
               anchors,
@@ -216,26 +227,26 @@ class YOLO:
             [[10., 13.], [16., 30.], [33., 23.], [30., 61.], [62., 45.], [59., 119.], [116., 90.], [156., 198.],
              [373., 326.]])
         self.numbers_to_names = {0: 'person', 1: 'bicycle', 2: 'car', 3: 'motorcycle', 4: 'airplane', 5: 'bus', 6: 'train',
-                            7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign',
-                            12: 'parking meter',
-                            13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow',
-                            20: 'elephant',
-                            21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 25: 'umbrella', 26: 'handbag',
-                            27: 'tie',
-                            28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite',
-                            34: 'baseball bat', 35: 'baseball glove', 36: 'skateboard', 37: 'surfboard',
-                            38: 'tennis racket',
-                            39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl',
-                            46: 'banana', 47: 'apple', 48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot',
-                            52: 'hot dog',
-                            53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant',
-                            59: 'bed',
-                            60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote',
-                            66: 'keyboard',
-                            67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink',
-                            72: 'refrigerator',
-                            73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier',
-                            79: 'toothbrush'}
+                                    7: 'truck', 8: 'boat', 9: 'traffic light', 10: 'fire hydrant', 11: 'stop sign',
+                                    12: 'parking meter',
+                                    13: 'bench', 14: 'bird', 15: 'cat', 16: 'dog', 17: 'horse', 18: 'sheep', 19: 'cow',
+                                    20: 'elephant',
+                                    21: 'bear', 22: 'zebra', 23: 'giraffe', 24: 'backpack', 25: 'umbrella', 26: 'handbag',
+                                    27: 'tie',
+                                    28: 'suitcase', 29: 'frisbee', 30: 'skis', 31: 'snowboard', 32: 'sports ball', 33: 'kite',
+                                    34: 'baseball bat', 35: 'baseball glove', 36: 'skateboard', 37: 'surfboard',
+                                    38: 'tennis racket',
+                                    39: 'bottle', 40: 'wine glass', 41: 'cup', 42: 'fork', 43: 'knife', 44: 'spoon', 45: 'bowl',
+                                    46: 'banana', 47: 'apple', 48: 'sandwich', 49: 'orange', 50: 'broccoli', 51: 'carrot',
+                                    52: 'hot dog',
+                                    53: 'pizza', 54: 'donut', 55: 'cake', 56: 'chair', 57: 'couch', 58: 'potted plant',
+                                    59: 'bed',
+                                    60: 'dining table', 61: 'toilet', 62: 'tv', 63: 'laptop', 64: 'mouse', 65: 'remote',
+                                    66: 'keyboard',
+                                    67: 'cell phone', 68: 'microwave', 69: 'oven', 70: 'toaster', 71: 'sink',
+                                    72: 'refrigerator',
+                                    73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier',
+                                    79: 'toothbrush'}
 
         self.__yolo_iou = 0.45
         self.__yolo_score = 0.1
@@ -264,8 +275,6 @@ class YOLO:
                                self.__yolo_model_image_size[1] - (self.__yolo_model_image_size[1] % 32))
 
     def evaluate_frame(self, frame):
-        detected_copy = frame.copy()
-        detected_copy = cv2.cvtColor(detected_copy, cv2.COLOR_BGR2RGB)
 
         frame = Image.fromarray(np.uint8(frame))
         boxed_image = letterbox_image(frame, self.new_image_size)
