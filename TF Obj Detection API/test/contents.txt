@@ -1,0 +1,3 @@
+This Folder is the unzipped version of the Architecture that is going to be used
+
+Download the tar.gz file from https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/detection_model_zoo.md
