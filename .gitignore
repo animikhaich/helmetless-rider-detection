@@ -1,4 +1,7 @@
 # Folder
 .vscode
+data
+libs/__pycache__
+weights
 
 # Files
