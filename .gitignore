@@ -5,3 +5,4 @@ libs/__pycache__
 weights
 
 # Files
+logs.log

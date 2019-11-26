@@ -5,7 +5,7 @@ import keras
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas
+import pandas, json
 from PIL import Image
 from keras import backend as K
 from keras.layers import Conv2D, MaxPool2D, Add, ZeroPadding2D, UpSampling2D, Concatenate
@@ -255,6 +255,10 @@ class YOLO:
                                     72: 'refrigerator',
                                     73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier',
                                     79: 'toothbrush'}
+
+        json_file = json.dumps(self.numbers_to_names)
+        with open('weights/coco.json', 'w') as json_writer:
+            json_writer.write(json_file)
 
         self.__yolo_iou = 0.45
         self.__yolo_score = 0.1
