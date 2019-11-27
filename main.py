@@ -19,11 +19,32 @@ from libs.logger import logging
 class YOLO:
     def __init__(self, yolo_weights='weights/yolo.h5', yolo_labels='weights/coco.names'):
         # Taking care of the YOLOv3 Weights & labels
-        self.weights = self.verify_weghts(yolo_weights)
-        self.labels = self.verify_labels(yolo_labels)
+        self.weights = self.verify_weghts(yolo_weights) # Returns Path of the weights --> String
+        self.labels = self.verify_labels(yolo_labels)   # Retuns Dictionary
+
+        # Initialize the constants
+        self.yolo_anchors = np.array(
+            [[10, 13],
+            [16, 30],
+            [33, 23],
+            [30, 61],
+            [62, 45],
+            [59, 119],
+            [116, 90],
+            [156, 198],
+            [373, 326]]
+        )
+
+        # Initializing the model architecture and loading weights
+        self.init_model()
         
-        # Initialize YOLOv3 Architecute
-        # self.init_darknet()
+    def init_model(self):
+        """
+        Function to Initialize the YOLOv3 model architecture and the weights.
+        """
+        self.model = self.yolo_main(Input(shape=(None, None, 3)), len(self.yolo_anchors)//3, len(self.labels))
+        self.model.load_weights(self.weights)
+        print("Succesfully Loaded weights")
 
     def yolo_main(self, input, num_anchors, num_classes):
 
