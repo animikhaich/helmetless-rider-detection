@@ -22,6 +22,7 @@ class YOLO:
         self.weights = self.verify_weghts(yolo_weights) # Returns Path of the weights --> String
         self.labels = self.verify_labels(yolo_labels)   # Retuns Dictionary
 
+        print(self.labels)
         # Initialize the constants
         self.yolo_anchors = np.array(
             [[10, 13],
@@ -37,6 +38,7 @@ class YOLO:
 
         # Initializing the model architecture and loading weights
         self.init_model()
+
         
     def init_model(self):
         """
@@ -45,6 +47,7 @@ class YOLO:
         self.model = self.yolo_main(Input(shape=(None, None, 3)), len(self.yolo_anchors)//3, len(self.labels))
         self.model.load_weights(self.weights)
         print("Succesfully Loaded weights")
+        print(self.model.summary())
 
     def yolo_main(self, input, num_anchors, num_classes):
 
@@ -151,9 +154,9 @@ class YOLO:
             exit(1)
         
         with open(labels_path, 'r') as f:
-            contents = f.read()
+            contents = f.read().strip()
         
-        labels = {i: contents.split()[i] for i in range(len(contents.split()))}
+        labels = {i: contents.split('\n')[i] for i in range(len(contents.split('\n')))}
 
         return labels
 

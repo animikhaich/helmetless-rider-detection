@@ -255,10 +255,7 @@ class YOLO:
                                     72: 'refrigerator',
                                     73: 'book', 74: 'clock', 75: 'vase', 76: 'scissors', 77: 'teddy bear', 78: 'hair drier',
                                     79: 'toothbrush'}
-
-        json_file = json.dumps(self.numbers_to_names)
-        with open('weights/coco.json', 'w') as json_writer:
-            json_writer.write(json_file)
+                                
 
         self.__yolo_iou = 0.45
         self.__yolo_score = 0.1
