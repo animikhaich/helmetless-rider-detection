@@ -1,5 +1,5 @@
 # Essentials
-import os, wget, sys, shutil
+import os, wget, sys, shutil, imutils
 import numpy as np
 
 # Computer Vision
@@ -38,6 +38,24 @@ class YOLO:
         # Initializing the model architecture and loading weights
         self.init_model()
 
+    def letterbox_image_custom(self, image, size):
+        h, w = image.shape[:2]
+        target_width, target_height = size
+        
+        if h < w:
+            image = imutils.resize(image, width=target_width)
+            h, w = image.shape[:2]
+            diff = abs(h-target_height)//2
+            top, bottom, left, right = (diff, diff, 0, 0)
+        else:
+            image = imutils.resize(image, height=target_height)
+            h, w = image.shape[:2]
+            diff = abs(target_width-w)//2
+            top, bottom, left, right = (0, 0, diff, diff)
+        
+        image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, None, 0)
+        image = cv2.resize(image, size, interpolation=cv2.INTER_AREA)
+        return image
         
     def init_model(self):
         """

@@ -6,3 +6,5 @@ weights
 
 # Files
 logs.log
+*.jpg
+test.py
