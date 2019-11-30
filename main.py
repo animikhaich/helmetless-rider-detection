@@ -1,5 +1,5 @@
 # Essentials
-import os, wget, sys, shutil, imutils
+import os, wget, sys, shutil, imutils, time
 import numpy as np
 
 # Computer Vision
@@ -17,7 +17,7 @@ from libs.logger import logging
 
 
 class YOLO:
-    def __init__(self, yolo_weights='weights/yolo.h5', yolo_labels='weights/coco.names'):
+    def __init__(self, yolo_weights='weights/yolo.h5', yolo_labels='weights/coco.names', target_dims=(416, 416)):
         # Taking care of the YOLOv3 Weights & labels
         self.weights = self.verify_weghts(yolo_weights) # Returns Path of the weights --> String
         self.labels = self.verify_labels(yolo_labels)   # Retuns Dictionary
@@ -35,8 +35,33 @@ class YOLO:
             [373, 326]]
         )
 
+        self.target_dims = target_dims
+
         # Initializing the model architecture and loading weights
         self.init_model()
+        
+        ### TEMP SECTION ###
+        frame = cv2.imread('sample.jpg')
+        preds = self.evaluate(frame)
+        start = time.time()
+        for i in range(100):
+            preds = self.evaluate(frame)
+        print(time.time() - start)
+        # print(preds)s
+
+    def evaluate(self, frame):
+        frame = self.letterbox_image_custom(frame, self.target_dims)
+        frame = self.preprocess_image(frame)
+        
+        # Perform inference
+        preds = self.model.predict(frame)
+
+        return preds
+
+    def preprocess_image(self, image):
+        image = image / 255
+        expanded_image = np.expand_dims(image, axis=0)
+        return expanded_image
 
     def letterbox_image_custom(self, image, size):
         h, w = image.shape[:2]

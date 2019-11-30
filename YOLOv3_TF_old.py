@@ -182,6 +182,7 @@ def yolo_eval(yolo_outputs,
     input_shape = K.shape(yolo_outputs[0])[1:3] * 32
     boxes = []
     box_scores = []
+    print("NUM_LAYERS", num_layers)
     for l in range(num_layers):
         _boxes, _box_scores = yolo_boxes_and_scores(yolo_outputs[l],
             anchors[anchor_mask[l]], num_classes, input_shape, image_shape)
@@ -302,7 +303,7 @@ class YOLO:
 
         min_probability = self.minimum_percentage_probability / 100
         output_list = list()
-        print(out_classes.shape)
+        
         for a, b in reversed(list(enumerate(out_classes))):
             info_dict = dict()
             predicted_class = self.numbers_to_names[b]
