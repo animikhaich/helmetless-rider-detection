@@ -43,10 +43,7 @@ class YOLO:
         ### TEMP SECTION ###
         frame = cv2.imread('sample.jpg')
         preds = self.evaluate(frame)
-        start = time.time()
-        for i in range(100):
-            preds = self.evaluate(frame)
-        print(time.time() - start)
+        
         # print(preds)s
 
     def evaluate(self, frame):
@@ -65,17 +62,17 @@ class YOLO:
 
     def letterbox_image_custom(self, image, size):
         h, w = image.shape[:2]
-        target_width, target_height = size
+        tw, th = size
         
-        if h < w:
-            image = imutils.resize(image, width=target_width)
+        if w/h > tw/th:
+            image = imutils.resize(image, width=tw)
             h, w = image.shape[:2]
-            diff = abs(h-target_height)//2
+            diff = abs(th-h)//2
             top, bottom, left, right = (diff, diff, 0, 0)
         else:
-            image = imutils.resize(image, height=target_height)
+            image = imutils.resize(image, height=th)
             h, w = image.shape[:2]
-            diff = abs(target_width-w)//2
+            diff = abs(tw-w)//2
             top, bottom, left, right = (0, 0, diff, diff)
         
         image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, None, 0)
