@@ -121,6 +121,7 @@ def yolo_head(feats, anchors, num_classes, input_shape, calc_loss=False):
     feats = K.reshape(
         feats, [-1, grid_shape[0], grid_shape[1], num_anchors, num_classes + 5])
 
+    print(K.cast(input_shape[::-1], K.dtype(feats)))
 
     box_xy = (K.sigmoid(feats[..., :2]) + grid) / K.cast(grid_shape[::-1], K.dtype(feats))
     box_wh = K.exp(feats[..., 2:4]) * anchors_tensor / K.cast(input_shape[::-1], K.dtype(feats))
