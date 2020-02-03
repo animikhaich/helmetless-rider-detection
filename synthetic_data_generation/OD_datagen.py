@@ -18,12 +18,14 @@ class DataGenerator:
         # Get Backgrounds
         self.all_background_paths = glob.glob(os.path.join(bg_root_path, '*'))
 
+        # Verify if background images are provided
         if len(self.all_background_paths) < 1:
             raise Exception(f'No background images provided. Please provide background images in the folder named: {bg_root_path}')
 
         # Get Objects
         self.all_objects_paths = glob.glob(os.path.join(objects_root_paths, '*', '*'))
 
+        # Verify if objects are provided
         if len(self.all_objects_paths) < 1:
             raise Exception(f'No Objects provided. Please provide object images in the folder named: {objects_root_paths}')
 
@@ -39,8 +41,8 @@ class DataGenerator:
         if not os.path.isdir(self.output_image_path): os.makedirs(self.output_image_path)
         if not os.path.isdir(self.output_annot_path): os.makedirs(self.output_annot_path)
 
-    def generate_coordinates(self, bg_w, bg_h, object_w, object_h):
-        for _ in range(100):
+    def generate_coordinates(self, bg_w, bg_h, object_w, object_h, max_tries=100):
+        for _ in range(max_tries):
             # Randomly generated X and Y coordinates
             x_coord = np.random.randint(0, bg_w-object_w)
             y_coord = np.random.randint(0, bg_h-object_h)
@@ -128,7 +130,7 @@ class DataGenerator:
                     object_image = Image.fromarray(object_image)
 
                 # Generate Random Coordinates
-                generated, coordinates = self.generate_coordinates(bg_w, bg_h, object_w, object_h)
+                generated, coordinates = self.generate_coordinates(bg_w, bg_h, object_w, object_h, max_tries=100)
                 
                 # if non overlapping coordinates aren't generated in 100 tries, continue to the next object
                 if not generated: continue
