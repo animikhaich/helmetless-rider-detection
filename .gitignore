@@ -158,6 +158,6 @@ static
 data
 .vscode
 
-train-detector/videos
-train-detector/output
-train-detector/logs
+train_detector/videos
+train_detector/output
+train_detector/logs
