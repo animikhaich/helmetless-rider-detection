@@ -4,6 +4,9 @@ from PIL import Image, ImageDraw
 import numpy as np
 import lxml.etree as etree
 
+# TODO: Add if __name__=='__main__' condition and make the script runnable
+# TODO: Test on a random Dataset
+
 class DataGenerator:
     
     def __init__(
