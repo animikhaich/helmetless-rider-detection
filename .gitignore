@@ -155,7 +155,6 @@ static
 *.jpg
 
 # Folders
-weights
 data
 .vscode
 
