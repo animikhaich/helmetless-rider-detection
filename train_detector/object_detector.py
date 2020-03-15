@@ -1,9 +1,8 @@
 import os, sys, argparse, json, cv2
-sys.path.extend(['../libs'])
 
-from logger import logging
-from utils.utils import get_yolo_boxes, makedirs
-from utils.bbox import draw_boxes
+from libs.logger import logging
+from train_detector.utils.utils import get_yolo_boxes, makedirs
+from train_detector.utils.bbox import draw_boxes
 from keras.models import load_model
 from tqdm import tqdm
 import numpy as np
@@ -38,9 +37,9 @@ class YOLOObjectDetector:
         logging.info("GPU detected, Setting allow memory growth")
         if tf.test.is_gpu_available():
             config = tf.compat.v1.ConfigProto()
-        config.gpu_options.allow_growth = True
-        session = tf.compat.v1.Session(config=config)
-        tf.compat.v1.keras.backend.set_session(session)
+            config.gpu_options.allow_growth = True
+            session = tf.compat.v1.Session(config=config)
+            tf.compat.v1.keras.backend.set_session(session)
     
         # Load Model Hyperparameter Config
         try:
@@ -87,9 +86,9 @@ class YOLOObjectDetector:
             return None, None, None
 
         # Run inference and get the bounding boxes
-        batch_boxes = get_yolo_boxes(self.infer_model, image, self.net_h, self.net_w, self.config['model']['anchors'], self.obj_thresh, self.nms_thresh)
+        batch_boxes = get_yolo_boxes(self.infer_model, [image], self.net_h, self.net_w, self.config['model']['anchors'], self.obj_thresh, self.nms_thresh)
 
         # Decode the output and get the corresponding labels and boxes
-        image_copy, final_boxes, final_labels = draw_boxes(image, batch_boxes, self.config['model']['labels'], self.obj_thresh)
+        image_copy, final_boxes, final_labels = draw_boxes(image, batch_boxes[0], self.config['model']['labels'], self.obj_thresh)
         
         return image_copy, final_boxes, final_labels
