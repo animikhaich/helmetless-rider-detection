@@ -17,7 +17,7 @@
         "nb_epochs":            100000,
         "warmup_epochs":        3,
         "ignore_thresh":        0.5,
-        "gpus":                 "-1", 
+        "gpus":                 "0", 
 
         "grid_scales":          [1,1,1],
         "obj_scale":            5,

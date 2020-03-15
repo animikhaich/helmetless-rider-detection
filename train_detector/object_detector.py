@@ -1,5 +1,4 @@
 import os, sys, argparse, json, cv2
-
 from libs.logger import logging
 from train_detector.utils.utils import get_yolo_boxes, makedirs
 from train_detector.utils.bbox import draw_boxes
@@ -27,15 +26,15 @@ class YOLOObjectDetector:
         
         Args:
             config_path (str, optional): The path for the Hyperparameter config JSON. Defaults to 'weights/config.json'.
-            input_img_dims (int, optional): Input image dimentions (square image). Defaults to 416.
+            input_img_dims (int, optional): Input image dimensions (square image). Defaults to 416.
             obj_thresh (float, optional): The minimum confidence threshold for the object detection model. Defaults to 0.85.
-            nms_thresh (float, optional): The minimum threshold to calculte the NMS boxes. Defaults to 0.25.
+            nms_thresh (float, optional): The minimum threshold to calculate the NMS boxes. Defaults to 0.25.
         """
         
 
-        # Verify if GPU is available, if so then allow memeory growth
-        logging.info("GPU detected, Setting allow memory growth")
+        # Verify if GPU is available, if so then allow memory growth
         if tf.test.is_gpu_available():
+            logging.info("GPU detected, Setting allow memory growth")
             config = tf.compat.v1.ConfigProto()
             config.gpu_options.allow_growth = True
             session = tf.compat.v1.Session(config=config)
@@ -50,7 +49,7 @@ class YOLOObjectDetector:
             logging.error(f"Unable to load Model Hyperparameter Config due to error: {e}")
             exit(1)
 
-        # Initialzie Network parameters
+        # Initialize Network parameters
         self.net_h, self.net_w = input_img_dims, input_img_dims
         self.obj_thresh, self.nms_thresh = obj_thresh, nms_thresh
 
@@ -77,7 +76,7 @@ class YOLOObjectDetector:
             tuple: returns None, None, None for incorrect arguments
         """
         
-        # Verify if the image has 3 dimensions or not. if not, then add a pseudo dimention to prevent errors
+        # Verify if the image has 3 dimensions or not. if not, then add a pseudo dimension to prevent errors
         try:
             if len(image.shape) < 3:
                 image = np.expand_dims(image, axis=2)

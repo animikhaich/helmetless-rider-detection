@@ -28,3 +28,31 @@ def show_feed(frame, window_name="Feed"):
         return True
     else: 
         return False
+
+
+def fix_boxes(x1, y1, x2, y2, frame_w, frame_h):
+    """
+    fix_boxes for the model predictions
+    
+    This function removes negative coordinate outputs of the object detector and replaces them with 0. 
+    It also limits the maximum coordinate outputs of the object detector to the frame width and height.
+    This avoids slicing and other errors
+    
+    Args:
+        x1 (int): xmin or the starting of the x axis
+        y1 (int): ymin or the starting of the y axis
+        x2 (int): xmax or the ending of the x axis
+        y2 (int): ymax or the ending of the y axis
+        frame_w (int): max width of the frame
+        frame_h (int): max height of the frame
+    
+    Returns:
+        tuple: x1, y1, x2, y2
+    """
+    
+    x1 = max(0, x1)
+    y1 = max(0, y1)
+    x2 = min(frame_w, x2)
+    y2 = min(frame_h, y2)
+
+    return x1, y1, x2, y2
