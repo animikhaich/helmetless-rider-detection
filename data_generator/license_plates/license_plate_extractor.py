@@ -50,8 +50,8 @@ for file_num, filepath in enumerate(filepaths):
             continue
         
         if modified_frame is None:
-            terminate = show_feed(frame)
-            if terminate: break
+            # terminate = show_feed(frame)
+            # if terminate: break
             continue
         
         object_num = 0
@@ -79,8 +79,8 @@ for file_num, filepath in enumerate(filepaths):
                 logging.error(f"Unable to save ROI image for frame {frame_num+1} out of {total_frames} for Object_path: {roi_filepath} for Coordinates: {box} due to error: {e}")
             
         
-        terminate = show_feed(modified_frame)
-        if terminate: break
+        # terminate = show_feed(modified_frame)
+        # if terminate: break
 
 
 cap.release()
