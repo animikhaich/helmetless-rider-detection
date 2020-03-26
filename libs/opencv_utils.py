@@ -30,9 +30,9 @@ def show_feed(frame, window_name="Feed"):
         return False
 
 
-def fix_boxes(x1, y1, x2, y2, frame_w, frame_h):
+def fix_box(x1, y1, x2, y2, frame_w, frame_h):
     """
-    fix_boxes for the model predictions
+    fix_box for the model predictions
     
     This function removes negative coordinate outputs of the object detector and replaces them with 0. 
     It also limits the maximum coordinate outputs of the object detector to the frame width and height.
@@ -56,3 +56,31 @@ def fix_boxes(x1, y1, x2, y2, frame_w, frame_h):
     y2 = min(frame_h, y2)
 
     return x1, y1, x2, y2
+
+def fix_boxes(boxes, frame_w, frame_h):
+    """
+    fix_boxes fix_boxes for the model predictions
+    
+    This function removes negative coordinate outputs of the object detector and replaces them with 0. 
+    It also limits the maximum coordinate outputs of the object detector to the frame width and height.
+    This avoids slicing and other errors
+
+    Args:
+        boxes (list): List of Lists containing bounding boxes in the form of x1, y1, x2, y2
+        frame_w (int): max width of the frame
+        frame_h (int): max height of the frame
+    
+    Returns:
+        list: List of Lists containing bounding boxes in the form of x1, y1, x2, y2
+    """
+    
+    fixed_boxes = list()
+
+    for x1, y1, x2, y2 in boxes:
+        x1 = max(0, x1)
+        y1 = max(0, y1)
+        x2 = min(frame_w, x2)
+        y2 = min(frame_h, y2)
+        fixed_boxes.append([x1, y1, x2, y2])
+
+    return fixed_boxes
