@@ -3,10 +3,10 @@ from tensorflow.keras.layers import Dense, Conv2D, Flatten, GlobalAveragePooling
 from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau, TensorBoard, ModelCheckpoint
 from tensorflow.keras.optimizers import Adam, SGD, RMSprop, Adadelta, Nadam, Adagrad
 from tensorflow.keras.mixed_precision import experimental as mixed_precision
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.metrics import Accuracy, Precision, Recall
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.models import Model
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from matplotlib import pyplot as plt
 from tqdm.notebook import tqdm
 import tensorflow as tf
